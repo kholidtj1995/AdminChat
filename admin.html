@@ -1,0 +1,29 @@
+<style>
+    body { font-family: sans-serif; background: #f9f9f9; padding: 10px; }
+    .admin-container { max-width: 500px; margin: auto; }
+    .user-card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 12px; border-left: 5px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .user-name { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
+    .user-msg { color: #555; font-size: 14px; }
+</style>
+
+<div class="admin-container">
+    <h3>Паёмакҳои нав:</h3>
+    <div id="userList"></div>
+</div>
+
+<script type="module">
+  // ... (коди Firebase-и худро инҷо илова кунед)
+  onValue(messagesRef, (snapshot) => {
+    const data = snapshot.val();
+    userList.innerHTML = ''; 
+    for (let key in data) {
+      const chat = data[key];
+      userList.innerHTML += `
+        <div class="user-card">
+            <span class="user-name">${chat.user}</span>
+            <div class="user-msg">${chat.text}</div>
+        </div>
+      `;
+    }
+  });
+</script>
