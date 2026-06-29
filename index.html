@@ -1,1 +1,70 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; background-color: #f0f2f5; }
+        .chat-card { width: 90%; max-width: 400px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); height: 80vh; display: flex; flex-direction: column; }
+        #chatDisplay { flex-grow: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; border-top: 1px solid #ddd; }
+        .msg { padding: 10px; margin: 5px; border-radius: 10px; max-width: 75%; }
+        .msg-user { align-self: flex-end; background-color: #dcf8c6; }
+        .msg-admin { align-self: flex-start; background-color: #f1f0f0; border: 1px solid #ddd; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="chat-card">
+    <input type="text" id="username" placeholder="Номи шумо...">
+    <button onclick="joinChat()" id="joinBtn">Ворид шудан</button>
+    <div id="chatBox" style="display:none; flex-direction: column; height: 100%;">
+        <div id="chatDisplay"></div>
+        <input type="text" id="message" placeholder="Паёмак...">
+        <button onclick="sendMessage()">Ирсол</button>
+    </div>
+</div>
 
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+
+    // ИНҶО КЛИДИ ШУМО
+    const firebaseConfig = {
+        apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
+        authDomain: "live-chat-ea070.firebaseapp.com",
+        databaseURL: "https://live-chat-ea070-default-rtdb.firebaseio.com",
+        projectId: "live-chat-ea070",
+        storageBucket: "live-chat-ea070.firebasestorage.app",
+        messagingSenderId: "321161064947",
+        appId: "1:321161064947:web:53603c0e1be0b3baf66286"
+    };
+
+    const db = getDatabase(initializeApp(firebaseConfig));
+
+    window.joinChat = () => {
+        document.getElementById('username').disabled = true;
+        document.getElementById('joinBtn').style.display = 'none';
+        document.getElementById('chatBox').style.display = 'flex';
+    };
+
+    window.sendMessage = () => {
+        const user = document.getElementById('username').value;
+        const text = document.getElementById('message').value;
+        push(ref(db, 'chats/'), { user, text });
+        document.getElementById('message').value = '';
+    };
+
+    onValue(ref(db, 'chats/'), (snapshot) => {
+        const data = snapshot.val();
+        const display = document.getElementById('chatDisplay');
+        display.innerHTML = '';
+        for (let key in data) {
+            const chat = data[key];
+            const isUser = chat.user !== "Админ";
+            display.innerHTML += `<div class="msg ${isUser ? 'msg-user' : 'msg-admin'}"><strong>${chat.user}</strong><br>${chat.text}</div>`;
+        }
+    });
+</script>
+</body>
+</html>
