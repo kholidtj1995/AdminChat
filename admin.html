@@ -2,30 +2,30 @@
 <html lang="tg">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Ҷавобдиҳӣ</title>
+    <title>Админ Панел</title>
     <style>
         body { font-family: sans-serif; background: #f9f9f9; padding: 10px; }
         .admin-container { max-width: 500px; margin: auto; }
-        .user-card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 12px; border-left: 5px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .user-name { font-weight: bold; color: #333; display: block; margin-bottom: 5px; }
-        .user-msg { color: #555; font-size: 14px; margin-bottom: 10px; }
-        .reply-box { display: flex; gap: 5px; margin-top: 10px; }
-        input { flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #chatDisplay { display: flex; flex-direction: column; margin-bottom: 20px; border: 1px solid #ddd; height: 60vh; overflow-y: auto; background: white; padding: 10px; }
+        .msg { padding: 10px; margin: 5px; border-radius: 10px; max-width: 75%; }
+        .msg-user { align-self: flex-start; background-color: #fff; border: 1px solid #ddd; }
+        .msg-admin { align-self: flex-end; background-color: #dcf8c6; }
+        input { padding: 10px; width: 70%; }
     </style>
 </head>
 <body>
-
 <div class="admin-container">
-    <h3>Паёмакҳои воридшуда:</h3>
-    <div id="userList"></div>
+    <h3>Админ Панел</h3>
+    <div id="chatDisplay"></div>
+    <input type="text" id="adminMsg" placeholder="Ҷавоб ба корбар...">
+    <button onclick="sendAdmin()">Ҷавоб додан</button>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-    import { getDatabase, ref, onValue, push } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
+    // ИНҶО КЛИДИ ШУМО
     const firebaseConfig = {
         apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
         authDomain: "live-chat-ea070.firebaseapp.com",
@@ -36,44 +36,22 @@
         appId: "1:321161064947:web:53603c0e1be0b3baf66286"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const messagesRef = ref(db, 'chats/');
+    const db = getDatabase(initializeApp(firebaseConfig));
 
-    // Функсия барои ирсоли ҷавоб
-    window.sendReply = (userName, inputId) => {
-        const replyText = document.getElementById(inputId).value;
-        if (replyText.trim() === "") return;
-
-        push(ref(db, 'chats/'), { 
-            user: "Админ", 
-            text: `Ҷавоб ба ${userName}: ${replyText}` 
-        });
-        
-        document.getElementById(inputId).value = ''; // Тоза кардани майдон
-        alert("Ҷавоб фиристода шуд!");
+    window.sendAdmin = () => {
+        const text = document.getElementById('adminMsg').value;
+        push(ref(db, 'chats/'), { user: "Админ", text });
+        document.getElementById('adminMsg').value = '';
     };
 
-    onValue(messagesRef, (snapshot) => {
+    onValue(ref(db, 'chats/'), (snapshot) => {
         const data = snapshot.val();
-        const userList = document.getElementById('userList');
-        userList.innerHTML = ''; 
-        
+        const display = document.getElementById('chatDisplay');
+        display.innerHTML = '';
         for (let key in data) {
             const chat = data[key];
-            // Агар паёмак аз Админ набошад, онро нишон медиҳем
-            if (chat.user !== "Админ") {
-                userList.innerHTML += `
-                    <div class="user-card">
-                        <span class="user-name">${chat.user}</span>
-                        <div class="user-msg">${chat.text}</div>
-                        <div class="reply-box">
-                            <input type="text" id="reply-${key}" placeholder="Ҷавоби админ...">
-                            <button onclick="sendReply('${chat.user}', 'reply-${key}')">Ирсол</button>
-                        </div>
-                    </div>
-                `;
-            }
+            const isAdmin = chat.user === "Админ";
+            display.innerHTML += `<div class="msg ${isAdmin ? 'msg-admin' : 'msg-user'}"><strong>${chat.user}</strong><br>${chat.text}</div>`;
         }
     });
 </script>
