@@ -18,11 +18,16 @@
         .users-list-screen { flex: 1; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; }
         .user-row { background: white; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #edf2f7; cursor: pointer; position: relative; transition: background 0.2s; }
         .user-row:hover { background: #f1f5f9; }
-        .user-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+        .user-info { display: flex; flex-direction: column; gap: 2px; flex: 1; overflow: hidden; }
+        .user-name-wrapper { display: flex; align-items: center; gap: 8px; }
         .user-name { font-size: 15px; font-weight: 700; color: #1e293b; }
-        .user-last-msg { font-size: 13px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
         
-        .menu-dots { padding: 8px; font-size: 18px; color: #94a3b8; cursor: pointer; font-weight: bold; border-radius: 50%; width: 34px; height: 34px; display: flex; justify-content: center; align-items: center; }
+        /* 👑 СТИЛИ НАВ: НИШОНДИҲАНДАИ ПАЁМИ НАВ */
+        .unread-badge { background: #ef4444; color: white; font-size: 11px; font-weight: bold; padding: 2px 6px; border-radius: 10px; display: none; }
+        
+        .user-last-msg { font-size: 13px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+        
+        .menu-dots { padding: 8px; font-size: 18px; color: #94a3b8; cursor: pointer; font-weight: bold; border-radius: 50%; width: 34px; height: 34px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
         .menu-dots:hover { background: #e2e8f0; color: #475569; }
 
         .context-menu { position: absolute; right: 16px; top: 45px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-radius: 12px; width: 160px; z-index: 200; display: none; border: 1px solid #e2e8f0; overflow: hidden; }
@@ -31,7 +36,7 @@
         .context-menu-item.delete-user { color: #ef4444; border-top: 1px solid #f1f5f9; }
 
         .chat-screen { flex: 1; display: none; flex-direction: column; overflow: hidden; background: #f4f6f9; }
-        #chatDisplay { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+        #chatDisplay { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; }
         #chatDisplay::-webkit-scrollbar { display: none; }
         
         .msg { padding: 8px 12px; border-radius: 16px; max-width: 75%; font-size: 15px; line-height: 20px; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
@@ -40,9 +45,10 @@
         .msg strong { font-size: 12px; display: block; margin-bottom: 2px; opacity: 0.8; }
         .msg-time { font-size: 10px; opacity: 0.7; align-self: flex-end; margin-top: 2px; }
 
-        .input-zone { padding: 12px 16px 16px 16px; background: #f4f6f9; display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
-        input { flex: 1; padding: 14px 16px; border: 1px solid #e2e8f0; border-radius: 24px; font-size: 15px; background: #ffffff; outline: none; }
-        button { padding: 14px 24px; background: #10b981; color: white; border: none; border-radius: 24px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        /* 👑 СТИЛИ НАВ: КУТИИ ПАЁМ (TEXTAREA) */
+        .input-zone { padding: 12px 16px 16px 16px; background: #f4f6f9; display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; }
+        textarea { flex: 1; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 20px; font-size: 15px; background: #ffffff; outline: none; resize: none; min-height: 44px; max-height: 120px; line-height: 20px; overflow-y: auto; }
+        button { padding: 12px 20px; height: 44px; background: #10b981; color: white; border: none; border-radius: 20px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         button:active { background: #059669; }
     </style>
 </head>
@@ -62,7 +68,8 @@
     <div id="chatScreen" class="chat-screen">
         <div id="chatDisplay"></div>
         <div class="input-zone">
-            <input type="text" id="adminMsg" placeholder="Ҷавоб ба корбар...">
+            <!-- Иваз ба Textarea барои паёмҳои дароз -->
+            <textarea id="adminMsg" placeholder="Ҷавоб ба корбар..." rows="1" oninput="autoResize(this)"></textarea>
             <button onclick="sendAdmin()">Ирсол</button>
         </div>
     </div>
@@ -70,7 +77,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-    import { getDatabase, ref, push, set, onValue, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+    import { getDatabase, ref, push, set, onValue, onDisconnect, remove, update } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
@@ -84,12 +91,18 @@
 
     const db = getDatabase(initializeApp(firebaseConfig));
 
-    // Статуси онлайнӣ ва тоза кардани чати фаъол ҳангоми баромадан
-    set(ref(db, 'admin_status/'), "online");
-    set(ref(db, 'admin_status/current_chat'), "");
-    onDisconnect(ref(db, 'admin_status/')).set({ status: "offline", current_chat: "" });
+    // Сабти статуси Админ ҳамчун Объект
+    const adminStatusRef = ref(db, 'admin_status/');
+    set(adminStatusRef, { status: "online", current_chat: "" });
+    onDisconnect(adminStatusRef).set({ status: "offline", current_chat: "" });
 
     let selectedUser = "";
+
+    // Танзими баландии худкори Textarea
+    window.autoResize = (textarea) => {
+        textarea.style.height = '44px';
+        textarea.style.height = (textarea.scrollHeight < 120 ? textarea.scrollHeight : 120) + 'px';
+    };
 
     onValue(ref(db, 'active_users/'), (snapshot) => {
         const usersListEl = document.getElementById('usersListScreen');
@@ -104,6 +117,7 @@
         for (let username in data) {
             const userObj = data[username];
             const lastMsg = userObj.lastMessage || "Паёме нест...";
+            const unreadCount = userObj.unreadCount || 0; // Шумораи паёмҳои нахонда
 
             const row = document.createElement('div');
             row.className = 'user-row';
@@ -111,7 +125,10 @@
 
             row.innerHTML = `
                 <div class="user-info">
-                    <span class="user-name">${username}</span>
+                    <div class="user-name-wrapper">
+                        <span class="user-name">${username}</span>
+                        <span class="unread-badge" style="display: ${unreadCount > 0 ? 'inline-block' : 'none'}">${unreadCount}</span>
+                    </div>
                     <span class="user-last-msg">${lastMsg}</span>
                 </div>
                 <div class="menu-dots" onclick="toggleMenu(event, '${username}')">⋮</div>
@@ -124,10 +141,12 @@
         }
     });
 
-    // 👑 НАВШУДА: Админ ба чат медарояд, номи корбар ба Firebase сабт мешавад
     window.openChat = (username) => {
         selectedUser = username;
-        set(ref(db, 'admin_status/current_chat'), username); // Сабти чати фаъол
+        // Сабти чати фаъол дар Firebase
+        update(ref(db, 'admin_status/'), { current_chat: username });
+        // Сифр кардани шумораи паёмҳои нахонда
+        update(ref(db, `active_users/${username}`), { unreadCount: 0 });
         
         document.getElementById('usersListScreen').style.display = 'none';
         document.getElementById('chatScreen').style.display = 'flex';
@@ -138,10 +157,10 @@
         setTimeout(() => document.getElementById('adminMsg').focus(), 100);
     };
 
-    // 👑 НАВШУДА: Баргаштан ба рӯйхат ва тоза кардани чати фаъол
     window.closeChat = () => {
         selectedUser = "";
-        set(ref(db, 'admin_status/current_chat'), ""); // Тоза кардани чати фаъол
+        // Тоза кардани чати фаъол дар Firebase
+        update(ref(db, 'admin_status/'), { current_chat: "" });
         
         document.getElementById('usersListScreen').style.display = 'flex';
         document.getElementById('chatScreen').style.display = 'none';
@@ -182,7 +201,9 @@
             text: text,
             timestamp: Date.now()
         });
+        
         inputEl.value = '';
+        inputEl.style.height = '44px'; // Баргардонидани баландии кутӣ
     };
 
     window.toggleMenu = (event, username) => {
@@ -198,7 +219,7 @@
         event.stopPropagation();
         if(confirm(`Чати ${username}-ро пок мекунед?`)) {
             remove(ref(db, `private_chats/${username}`));
-            set(ref(db, `active_users/${username}/lastMessage`), "Чат пок карда шуд");
+            update(ref(db, `active_users/${username}`), { lastMessage: "Чат пок карда шуд", unreadCount: 0 });
         }
         document.getElementById(`menu-${username}`).style.display = 'none';
     };
@@ -217,8 +238,12 @@
         document.querySelectorAll('.context-menu').forEach(m => m.style.display = 'none');
     });
 
+    // Пахши Enter бе Shift барои ирсол
     document.getElementById('adminMsg').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') sendAdmin();
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // Манъи сатри нав
+            sendAdmin();
+        }
     });
 </script>
 </body>
