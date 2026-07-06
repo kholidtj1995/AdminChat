@@ -15,7 +15,6 @@
         .online-badge { width: 8px; height: 8px; background-color: #10b981; border-radius: 50%; display: inline-block; }
         .back-to-list { background: rgba(255,255,255,0.2); color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; display: none; }
 
-        /* ЭКРАНИ АСОСӢ: РӮЙХАТИ КОРБАРУН */
         .users-list-screen { flex: 1; overflow-y: auto; background: #f8fafc; display: flex; flex-direction: column; }
         .user-row { background: white; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #edf2f7; cursor: pointer; position: relative; transition: background 0.2s; }
         .user-row:hover { background: #f1f5f9; }
@@ -23,17 +22,14 @@
         .user-name { font-size: 15px; font-weight: 700; color: #1e293b; }
         .user-last-msg { font-size: 13px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
         
-        /* ТУГМАИ 3 НУҚТА */
         .menu-dots { padding: 8px; font-size: 18px; color: #94a3b8; cursor: pointer; font-weight: bold; border-radius: 50%; width: 34px; height: 34px; display: flex; justify-content: center; align-items: center; }
         .menu-dots:hover { background: #e2e8f0; color: #475569; }
 
-        /* КОНТЕКСТ МЕНЮ */
         .context-menu { position: absolute; right: 16px; top: 45px; background: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05); border-radius: 12px; width: 160px; z-index: 200; display: none; border: 1px solid #e2e8f0; overflow: hidden; }
         .context-menu-item { padding: 10px 14px; font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; color: #334155; transition: background 0.2s; }
         .context-menu-item:hover { background: #f1f5f9; }
         .context-menu-item.delete-user { color: #ef4444; border-top: 1px solid #f1f5f9; }
 
-        /* ЭКРАНИ ЧАТИ ИНФИРОДӢ */
         .chat-screen { flex: 1; display: none; flex-direction: column; overflow: hidden; background: #f4f6f9; }
         #chatDisplay { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
         #chatDisplay::-webkit-scrollbar { display: none; }
@@ -61,10 +57,8 @@
         <button id="backBtn" class="back-to-list" onclick="closeChat()">← Рӯйхат</button>
     </div>
 
-    <!-- 1. Экран бо Рӯйхати Корбарон -->
     <div id="usersListScreen" class="users-list-screen"></div>
 
-    <!-- 2. Экран бо Чати Корбари Интихобшуда -->
     <div id="chatScreen" class="chat-screen">
         <div id="chatDisplay"></div>
         <div class="input-zone">
@@ -90,14 +84,13 @@
 
     const db = getDatabase(initializeApp(firebaseConfig));
 
-    // Статуси онлайнӣ
+    // Статуси онлайнӣ ва тоза кардани чати фаъол ҳангоми баромадан
     set(ref(db, 'admin_status/'), "online");
-    onDisconnect(ref(db, 'admin_status/')).set("offline");
+    set(ref(db, 'admin_status/current_chat'), "");
+    onDisconnect(ref(db, 'admin_status/')).set({ status: "offline", current_chat: "" });
 
     let selectedUser = "";
-    let chatListenerUnsubscribe = null;
 
-    // Гӯш кардани Рӯйхати Корбарон
     onValue(ref(db, 'active_users/'), (snapshot) => {
         const usersListEl = document.getElementById('usersListScreen');
         usersListEl.innerHTML = '';
@@ -131,9 +124,11 @@
         }
     });
 
-    // Кушодани чати корбар
+    // 👑 НАВШУДА: Админ ба чат медарояд, номи корбар ба Firebase сабт мешавад
     window.openChat = (username) => {
         selectedUser = username;
+        set(ref(db, 'admin_status/current_chat'), username); // Сабти чати фаъол
+        
         document.getElementById('usersListScreen').style.display = 'none';
         document.getElementById('chatScreen').style.display = 'flex';
         document.getElementById('backBtn').style.display = 'block';
@@ -143,16 +138,17 @@
         setTimeout(() => document.getElementById('adminMsg').focus(), 100);
     };
 
-    // Баргаштан ба рӯйхат
+    // 👑 НАВШУДА: Баргаштан ба рӯйхат ва тоза кардани чати фаъол
     window.closeChat = () => {
         selectedUser = "";
+        set(ref(db, 'admin_status/current_chat'), ""); // Тоза кардани чати фаъол
+        
         document.getElementById('usersListScreen').style.display = 'flex';
         document.getElementById('chatScreen').style.display = 'none';
         document.getElementById('backBtn').style.display = 'none';
         document.getElementById('adminPanelTitle').innerText = "Админ Панел";
     };
 
-    // Боркунии паёмҳо
     function loadMessages(username) {
         onValue(ref(db, `private_chats/${username}`), (snapshot) => {
             if (selectedUser !== username) return;
@@ -176,7 +172,6 @@
         });
     }
 
-    // Ирсоли паёми Админ
     window.sendAdmin = () => {
         const inputEl = document.getElementById('adminMsg');
         const text = inputEl.value.trim();
@@ -190,19 +185,15 @@
         inputEl.value = '';
     };
 
-    // Контекст меню
     window.toggleMenu = (event, username) => {
         event.stopPropagation();
-        // Маҳкам кардани менюҳои дигар
         document.querySelectorAll('.context-menu').forEach(m => {
             if(m.id !== `menu-${username}`) m.style.display = 'none';
         });
-        
         const menu = document.getElementById(`menu-${username}`);
         menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
     };
 
-    // 1. Пок кардани чат
     window.clearChat = (event, username) => {
         event.stopPropagation();
         if(confirm(`Чати ${username}-ро пок мекунед?`)) {
@@ -212,7 +203,6 @@
         document.getElementById(`menu-${username}`).style.display = 'none';
     };
 
-    // 2. Нест кардани корбар
     window.deleteUser = (event, username) => {
         event.stopPropagation();
         if(confirm(`Корбар ${username}-ро комилан нест мекунед?`)) {
@@ -223,12 +213,10 @@
         document.getElementById(`menu-${username}`).style.display = 'none';
     };
 
-    // Маҳкам кардани меню ҳангоми клик ба ҷои дигар
     document.addEventListener('click', () => {
         document.querySelectorAll('.context-menu').forEach(m => m.style.display = 'none');
     });
 
-    // Пахши Enter барои ирсол
     document.getElementById('adminMsg').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') sendAdmin();
     });
