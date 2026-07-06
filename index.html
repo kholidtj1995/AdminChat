@@ -45,9 +45,15 @@
             padding: 14px 16px;
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between; /* Барои озод ҷойгир шудани иконка */
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             flex-shrink: 0;
+        }
+
+        .chat-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .back-btn { 
@@ -65,9 +71,43 @@
         }
         .back-btn:active { background: rgba(255, 255, 255, 0.3); }
 
+        .header-title-container {
+            display: flex;
+            flex-direction: column;
+        }
+
         .header-title {
             font-size: 16px;
             font-weight: 700;
+        }
+
+        /* МАТНИ СТАТУСИ АДМИН ДАР ШАПКА */
+        .admin-subtitle {
+            font-size: 11px;
+            opacity: 0.9;
+            margin-top: 1px;
+            font-weight: 500;
+        }
+
+        /* ИКОНКАИ ДУРАХШОНИ ОНЛАЙН */
+        .admin-status-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #ef4444; /* Сурх - офлайн */
+            border-radius: 50%;
+            display: inline-block;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+        }
+        .admin-status-dot.online {
+            background-color: #10b981; /* Сабз - онлайн */
+            box-shadow: 0 0 8px 2px rgba(16, 185, 129, 0.6);
+            animation: pulseGlow 1.5s infinite;
+        }
+        @keyframes pulseGlow {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
         }
 
         #chatDisplay { 
@@ -112,7 +152,6 @@
             opacity: 0.8;
         }
 
-        /* 👑 ДИЗАЙНИ НАВИ ЗЕБО БАРОИ РАВЗАНАИ ВОРИДШАВӢ ДАР БАЙН */
         .auth-zone {
             flex: 1;
             display: flex;
@@ -198,11 +237,18 @@
 <div class="phone-container">
     <!-- Шапкаи болоӣ -->
     <div class="chat-header">
-        <a href="https://kholidtj1995.github.io/live-chat/" class="back-btn">← Бозгашт</a>
-        <div class="header-title" id="headerTitle">Воридшавӣ</div>
+        <div class="chat-header-left">
+            <a href="https://kholidtj1995.github.io/live-chat/" class="back-btn">← Бозгашт</a>
+            <div class="header-title-container">
+                <div class="header-title" id="headerTitle">Воридшавӣ</div>
+                <div class="admin-subtitle" id="adminSubtitle" style="display: none;">Админ ҳоло пайваст нест</div>
+            </div>
+        </div>
+        <!-- ИКОНКАИ ОНЛАЙН СТАТУСИ АДМИН -->
+        <div id="adminStatusDot" class="admin-status-dot" style="display: none;"></div>
     </div>
     
-    <!-- Равзанаи Воридшавии Зебо дар Байн -->
+    <!-- Равзанаи Воридшавии Зебо -->
     <div id="authBox" class="auth-zone">
         <div class="auth-card">
             <h2>Хуш омадед!</h2>
@@ -212,7 +258,7 @@
         </div>
     </div>
 
-    <!-- Равзанаи Чат (Аввал пинҳон аст) -->
+    <!-- Равзанаи Чат -->
     <div id="chatBox" style="display:none; flex-direction: column; flex: 1; overflow: hidden;">
         <div id="chatDisplay"></div>
         <div class="input-area">
@@ -246,8 +292,15 @@
         }
         document.getElementById('authBox').style.display = 'none';
         document.getElementById('chatBox').style.display = 'flex';
-        document.getElementById('headerTitle').innerText = "Чат бо Admin";
+        document.getElementById('headerTitle').innerText = "Чат бо Админ";
         
+        // Нишон додани субтитр ва иконкаи статус пас аз ворид шудан ба чат
+        document.getElementById('adminSubtitle').style.display = 'block';
+        document.getElementById('adminStatusDot').style.display = 'block';
+        
+        // Гӯш кардани статуси Админ дар вақти воқеӣ
+        listenAdminStatus();
+
         setTimeout(() => document.getElementById('message').focus(), 100);
     };
 
@@ -268,6 +321,25 @@
             }
         }
     });
+
+    // ФУНКСИЯИ НАЗОРАТИ СТАТУСИ АДМИН
+    function listenAdminStatus() {
+        onValue(ref(db, 'admin_status/'), (snapshot) => {
+            const status = snapshot.val();
+            const subtitle = document.getElementById('adminSubtitle');
+            const dot = document.getElementById('adminStatusDot');
+
+            if (status === "online") {
+                subtitle.innerText = "Админ дар чат пайваст шуд";
+                subtitle.style.color = "#10b981"; /* Ранги матни сабз */
+                dot.classList.add('online');
+            } else {
+                subtitle.innerText = "Админ ҳоло пайваст нест";
+                subtitle.style.color = "rgba(255, 255, 255, 0.9)"; /* Ранги сафеди хира */
+                dot.classList.remove('online');
+            }
+        });
+    }
 
     onValue(ref(db, 'chats/'), (snapshot) => {
         const data = snapshot.val();
