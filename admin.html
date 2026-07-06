@@ -23,9 +23,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
+    import { getDatabase, ref, push, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-database.js";
 
-    // ИНҶО КЛИДИ ШУМО
     const firebaseConfig = {
         apiKey: "AIzaSyDskehF5n_IJuuUsGWQEFBmjM80uCSDEyM",
         authDomain: "live-chat-ea070.firebaseapp.com",
@@ -38,11 +37,28 @@
 
     const db = getDatabase(initializeApp(firebaseConfig));
 
+    // 🟢 ИДОРАКУНИИ СТАТУСИ АДМИН (ОНЛАЙН / ОФЛАЙН)
+    const adminStatusRef = ref(db, 'admin_status/');
+    
+    // Вақте ки саҳифаи админ кушода мешавад, ҳолатро online мекунем
+    set(adminStatusRef, "online");
+
+    // Вақте ки админ саҳифаро мепӯшад (ё интернет канда мешавад), автоматӣ offline мешавад
+    onDisconnect(adminStatusRef).set("offline");
+
     window.sendAdmin = () => {
         const text = document.getElementById('adminMsg').value;
+        if(text.trim() === "") return;
         push(ref(db, 'chats/'), { user: "Админ", text });
         document.getElementById('adminMsg').value = '';
     };
+
+    // Пайваст кардани тугмаи Enter барои ирсоли ҷавоб
+    document.getElementById('adminMsg').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            sendAdmin();
+        }
+    });
 
     onValue(ref(db, 'chats/'), (snapshot) => {
         const data = snapshot.val();
@@ -53,6 +69,7 @@
             const isAdmin = chat.user === "Админ";
             display.innerHTML += `<div class="msg ${isAdmin ? 'msg-admin' : 'msg-user'}"><strong>${chat.user}</strong><br>${chat.text}</div>`;
         }
+        display.scrollTop = display.scrollHeight;
     });
 </script>
 </body>
