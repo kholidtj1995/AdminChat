@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="google" content="notranslate">
-    <!-- Мета-тегҳои муҳим барои 100% ровно истодан дар ҳама намуди телефонҳо -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Chat</title>
     <style>
@@ -25,7 +24,6 @@
             overflow: hidden; 
         }
 
-        /* Контейнери мобилӣ: дар телефон 100% экранро мегирад, дар компютер маҳдуд мешавад */
         .phone-container { 
             width: 100%; 
             max-width: 480px; 
@@ -37,12 +35,10 @@
             position: relative; 
             box-shadow: 0 8px 30px rgba(0,0,0,0.08); 
             overflow: hidden;
-            /* Барои экранҳои iPhone (челкадор) */
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* Қисми болоии чат (Шапка) */
         .chat-header {
             background: #007bff;
             color: white;
@@ -74,7 +70,6 @@
             font-weight: 700;
         }
 
-        /* Қисми намоиши паёмҳо */
         #chatDisplay { 
             flex: 1; 
             overflow-y: auto; 
@@ -88,7 +83,6 @@
         }
         #chatDisplay::-webkit-scrollbar { display: none; }
 
-        /* Паёмакҳо */
         .msg { 
             padding: 10px 14px; 
             border-radius: 16px; 
@@ -118,22 +112,41 @@
             opacity: 0.8;
         }
 
-        /* Формаи воридшавӣ */
+        /* 👑 ДИЗАЙНИ НАВИ ЗЕБО БАРОИ РАВЗАНАИ ВОРИДШАВӢ ДАР БАЙН */
         .auth-zone {
             flex: 1;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding: 30px;
-            background: #ffffff;
+            align-items: center;
+            padding: 24px;
+            background: #f8fafc;
         }
-        .auth-zone h2 {
-            margin-bottom: 20px;
-            color: #1e293b;
+        
+        .auth-card {
+            width: 100%;
+            background: white;
+            padding: 30px 24px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.01);
             text-align: center;
+            border: 1px solid rgba(0, 123, 255, 0.05);
         }
 
-        /* Қисми воридкунии паём аз поён */
+        .auth-zone h2 {
+            margin-bottom: 8px;
+            color: #1e293b;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .auth-zone p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 24px;
+            font-weight: 500;
+        }
+
         .input-area {
             padding: 12px;
             background: white;
@@ -145,22 +158,24 @@
         }
 
         input { 
-            flex: 1;
-            padding: 12px 16px; 
+            width: 100%;
+            padding: 14px 16px; 
             border: 1px solid #e2e8f0; 
-            border-radius: 20px; 
+            border-radius: 14px; 
             font-size: 15px; 
             background: #f8fafc;
             outline: none;
+            transition: all 0.2s;
         }
-        input:focus { border-color: #007bff; background: #fff; }
+        input:focus { border-color: #007bff; background: #fff; box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); }
 
         button { 
-            padding: 12px 24px; 
+            width: 100%;
+            padding: 14px 24px; 
             background: #007bff; 
             color: white; 
             border: none; 
-            border-radius: 20px; 
+            border-radius: 14px; 
             font-size: 15px;
             font-weight: 600;
             cursor: pointer; 
@@ -169,11 +184,12 @@
         button:active { background: #0056b3; }
         
         #joinBtn {
-            border-radius: 12px;
-            margin-top: 10px;
+            margin-top: 16px;
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
         }
         #username {
-            border-radius: 12px;
+            text-align: center;
         }
     </style>
 </head>
@@ -186,11 +202,14 @@
         <div class="header-title" id="headerTitle">Воридшавӣ</div>
     </div>
     
-    <!-- Равзанаи Воридшавӣ -->
+    <!-- Равзанаи Воридшавии Зебо дар Байн -->
     <div id="authBox" class="auth-zone">
-        <h2>Хуш омадед!</h2>
-        <input type="text" id="username" placeholder="Номи шумо...">
-        <button onclick="joinChat()" id="joinBtn">Ворид шудан</button>
+        <div class="auth-card">
+            <h2>Хуш омадед!</h2>
+            <p>Лутфан номи худро нависед</p>
+            <input type="text" id="username" placeholder="Номи шумо...">
+            <button onclick="joinChat()" id="joinBtn">Ворид шудан</button>
+        </div>
     </div>
 
     <!-- Равзанаи Чат (Аввал пинҳон аст) -->
@@ -198,7 +217,7 @@
         <div id="chatDisplay"></div>
         <div class="input-area">
             <input type="text" id="message" placeholder="Паёмак...">
-            <button onclick="sendMessage()">Ирсол</button>
+            <button onclick="sendMessage()" style="width: auto;">Ирсол</button>
         </div>
     </div>
 </div>
@@ -227,9 +246,8 @@
         }
         document.getElementById('authBox').style.display = 'none';
         document.getElementById('chatBox').style.display = 'flex';
-        document.getElementById('headerTitle').innerText = "Чат бо Админ";
+        document.getElementById('headerTitle').innerText = "Чат бо Admin";
         
-        // Фокус ба паёмак
         setTimeout(() => document.getElementById('message').focus(), 100);
     };
 
@@ -241,7 +259,6 @@
         document.getElementById('message').value = '';
     };
 
-    // Пайваст кардани тугмаи Enter барои ирсоли паём
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             if (document.getElementById('authBox').style.display !== 'none') {
