@@ -45,7 +45,7 @@
             padding: 14px 16px;
             display: flex;
             align-items: center;
-            justify-content: space-between; /* Барои озод ҷойгир шудани иконка */
+            justify-content: space-between;
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             flex-shrink: 0;
         }
@@ -81,7 +81,6 @@
             font-weight: 700;
         }
 
-        /* МАТНИ СТАТУСИ АДМИН ДАР ШАПКА */
         .admin-subtitle {
             font-size: 11px;
             opacity: 0.9;
@@ -89,18 +88,17 @@
             font-weight: 500;
         }
 
-        /* ИКОНКАИ ДУРАХШОНИ ОНЛАЙН */
         .admin-status-dot {
             width: 10px;
             height: 10px;
-            background-color: #ef4444; /* Сурх - офлайн */
+            background-color: #ef4444;
             border-radius: 50%;
             display: inline-block;
             transition: all 0.3s ease;
             box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
         }
         .admin-status-dot.online {
-            background-color: #10b981; /* Сабз - онлайн */
+            background-color: #10b981;
             box-shadow: 0 0 8px 2px rgba(16, 185, 129, 0.6);
             animation: pulseGlow 1.5s infinite;
         }
@@ -113,7 +111,7 @@
         #chatDisplay { 
             flex: 1; 
             overflow-y: auto; 
-            padding: 16px; 
+            padding: 16px 16px 4px 16px; 
             display: flex; 
             flex-direction: column; 
             gap: 10px;
@@ -186,12 +184,13 @@
             font-weight: 500;
         }
 
+        /* 👑 ИСЛОҲШУДА: ФОНИ САФЕД КОМИЛАН НЕСТ КАРДА ШУД ВА БО ЗЕРИ ЧАТ ЯКХЕЛА ГАРДИД */
         .input-area {
-            padding: 12px;
-            background: white;
+            padding: 12px 16px 16px 16px;
+            background: #f4f6f9;
             display: flex;
-            gap: 8px;
-            border-top: 1px solid #edf2f7;
+            gap: 10px;
+            border-top: none;
             align-items: center;
             flex-shrink: 0;
         }
@@ -200,13 +199,14 @@
             width: 100%;
             padding: 14px 16px; 
             border: 1px solid #e2e8f0; 
-            border-radius: 14px; 
+            border-radius: 24px; 
             font-size: 15px; 
-            background: #f8fafc;
+            background: #ffffff;
             outline: none;
             transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.03);
         }
-        input:focus { border-color: #007bff; background: #fff; box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); }
+        input:focus { border-color: #007bff; box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1); }
 
         button { 
             width: 100%;
@@ -214,7 +214,7 @@
             background: #007bff; 
             color: white; 
             border: none; 
-            border-radius: 14px; 
+            border-radius: 24px; 
             font-size: 15px;
             font-weight: 600;
             cursor: pointer; 
@@ -226,9 +226,80 @@
             margin-top: 16px;
             background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
             box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+            border-radius: 14px;
         }
         #username {
             text-align: center;
+            border-radius: 14px;
+        }
+
+        .custom-alert-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .custom-alert-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .custom-alert-box {
+            width: 85%;
+            max-width: 320px;
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .custom-alert-overlay.show .custom-alert-box {
+            transform: scale(1);
+        }
+        .custom-alert-icon {
+            width: 48px;
+            height: 48px;
+            background: #fee2e2;
+            color: #ef4444;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            margin: 0 auto 14px auto;
+        }
+        .custom-alert-text {
+            color: #1e293b;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 22px;
+            margin-bottom: 20px;
+        }
+        .custom-alert-btn {
+            width: 100%;
+            padding: 12px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+        }
+        .custom-alert-btn:active {
+            background: #dc2626;
         }
     </style>
 </head>
@@ -244,7 +315,6 @@
                 <div class="admin-subtitle" id="adminSubtitle" style="display: none;">Админ ҳоло пайваст нест</div>
             </div>
         </div>
-        <!-- ИКОНКАИ ОНЛАЙН СТАТУСИ АДМИН -->
         <div id="adminStatusDot" class="admin-status-dot" style="display: none;"></div>
     </div>
     
@@ -266,6 +336,15 @@
             <button onclick="sendMessage()" style="width: auto;">Ирсол</button>
         </div>
     </div>
+
+    <!-- РАВЗАНАИ ОГОҲИИ ХУСУСӢ -->
+    <div id="customAlert" class="custom-alert-overlay">
+        <div class="custom-alert-box">
+            <div class="custom-alert-icon">⚠️</div>
+            <div class="custom-alert-text">Лутфан номи худро ворид кунед!</div>
+            <button class="custom-alert-btn" onclick="closeAlert()">Фаҳмо аст</button>
+        </div>
+    </div>
 </div>
 
 <script type="module">
@@ -284,21 +363,27 @@
 
     const db = getDatabase(initializeApp(firebaseConfig));
 
+    window.showAlert = () => {
+        document.getElementById('customAlert').classList.add('show');
+    };
+    window.closeAlert = () => {
+        document.getElementById('customAlert').classList.remove('show');
+        setTimeout(() => document.getElementById('username').focus(), 300);
+    };
+
     window.joinChat = () => {
         const user = document.getElementById('username').value.trim();
         if(user === "") {
-            alert("Лутфан номи худро нависед!");
+            window.showAlert();
             return;
         }
         document.getElementById('authBox').style.display = 'none';
         document.getElementById('chatBox').style.display = 'flex';
-        document.getElementById('headerTitle').innerText = "Чат бо Админ";
+        document.getElementById('headerTitle').innerText = "Чат бо Admin";
         
-        // Нишон додани субтитр ва иконкаи статус пас аз ворид шудан ба чат
         document.getElementById('adminSubtitle').style.display = 'block';
         document.getElementById('adminStatusDot').style.display = 'block';
         
-        // Гӯш кардани статуси Админ дар вақти воқеӣ
         listenAdminStatus();
 
         setTimeout(() => document.getElementById('message').focus(), 100);
@@ -314,6 +399,10 @@
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
+            if (document.getElementById('customAlert').classList.contains('show')) {
+                closeAlert();
+                return;
+            }
             if (document.getElementById('authBox').style.display !== 'none') {
                 joinChat();
             } else {
@@ -322,7 +411,6 @@
         }
     });
 
-    // ФУНКСИЯИ НАЗОРАТИ СТАТУСИ АДМИН
     function listenAdminStatus() {
         onValue(ref(db, 'admin_status/'), (snapshot) => {
             const status = snapshot.val();
@@ -331,11 +419,11 @@
 
             if (status === "online") {
                 subtitle.innerText = "Админ дар чат пайваст шуд";
-                subtitle.style.color = "#10b981"; /* Ранги матни сабз */
+                subtitle.style.color = "#10b981";
                 dot.classList.add('online');
             } else {
                 subtitle.innerText = "Админ ҳоло пайваст нест";
-                subtitle.style.color = "rgba(255, 255, 255, 0.9)"; /* Ранги сафеди хира */
+                subtitle.style.color = "rgba(255, 255, 255, 0.9)";
                 dot.classList.remove('online');
             }
         });
