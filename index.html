@@ -22,7 +22,7 @@
             height: 100vh; 
             height: 100dvh; 
             overflow: hidden; 
-            position: fixed; /* Барои он ки худи экран дар телефон листат нашавад */
+            position: fixed; 
             width: 100%;
         }
 
@@ -41,7 +41,6 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* 👑 ИСЛОҲШУДА: ШАПКА ХОЛО ДОИМ ДАР БОЛО ЗАКРЕПИТ АСТ ВА ҲЕҶ ГОҲ НЕСТ НАМЕШАВАД */
         .chat-header {
             position: sticky;
             top: 0;
@@ -53,13 +52,20 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            flex-shrink: 0; /* Намегузорад, ки шапка хурд ё фишурда шавад */
+            flex-shrink: 0;
         }
 
         .chat-header-left {
             display: flex;
             align-items: center;
             gap: 12px;
+        }
+
+        /* 👑 ИСЛОҲШУДА: СТАТУСИ АДМИН ДАР ТАРАФИ РОСТ БО МАТНИ САФЕДИ ҒАФС */
+        .chat-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .back-btn { 
@@ -77,21 +83,16 @@
         }
         .back-btn:active { background: rgba(255, 255, 255, 0.3); }
 
-        .header-title-container {
-            display: flex;
-            flex-direction: column;
-        }
-
         .header-title {
             font-size: 16px;
             font-weight: 700;
         }
 
         .admin-subtitle {
-            font-size: 11px;
-            opacity: 0.9;
-            margin-top: 1px;
-            font-weight: 500;
+            font-size: 12px;
+            color: #ffffff;
+            font-weight: 700; /* Сафеди ғафс */
+            transition: all 0.3s ease;
         }
 
         .admin-status-dot {
@@ -109,12 +110,11 @@
             animation: pulseGlow 1.5s infinite;
         }
         @keyframes pulseGlow {
-            0% { transform: scale(0.95); opacity: 0.7; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.7; }
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
         }
 
-        /* МИНТАҚАИ ПАЁМҲО: ТАНҲО ИН ҶО ЛИСТАТ МЕШАВАД */
         #chatDisplay { 
             flex: 1; 
             overflow-y: auto; 
@@ -125,18 +125,35 @@
             background-color: #f4f6f9;
             scrollbar-width: none; 
             -ms-overflow-style: none;
-            -webkit-overflow-scrolling: touch; /* Барои скролли мулоим дар iPhone */
+            -webkit-overflow-scrolling: touch;
         }
         #chatDisplay::-webkit-scrollbar { display: none; }
 
+        /* 👑 СТИЛИ НАВ: САНАИ РӮЗ ДАР БАЙНИ ЧАТ */
+        .date-separator {
+            align-self: center;
+            background: rgba(0, 0, 0, 0.05);
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 12px;
+            margin: 10px 0;
+            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+        }
+
+        /* КОНТЕЙНЕРИ ПАЁМАКҲО */
         .msg { 
-            padding: 10px 14px; 
+            padding: 8px 12px 6px 12px; 
             border-radius: 16px; 
             max-width: 75%; 
             font-size: 15px;
             line-height: 20px;
             word-break: break-word;
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
         .msg-user { 
             align-self: flex-end; 
@@ -156,6 +173,31 @@
             display: block;
             margin-bottom: 2px;
             opacity: 0.8;
+        }
+
+        /* 👑 СТИЛИ НАВ: МЕТА-МАЪЛУМОТ (СОАТ ВА ГАЛОЧКА) ДАР ЗЕРИ ПАЁМАК */
+        .msg-meta {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 4px;
+            font-size: 10px;
+            margin-top: 2px;
+            align-self: flex-end;
+            opacity: 0.75;
+        }
+        .msg-user .msg-meta {
+            color: rgba(255, 255, 255, 0.85);
+        }
+        .msg-admin .msg-meta {
+            color: #888888;
+        }
+        .msg-ticks {
+            font-size: 11px;
+            line-height: 10px;
+        }
+        .msg-user .msg-ticks {
+            color: #a7f3d0; /* Галочкаи сабзи равшан барои паёми корбар */
         }
 
         .auth-zone {
@@ -313,19 +355,20 @@
 <body>
 
 <div class="phone-container">
-    <!-- Шапкаи болоӣ (АКНУН МУТЛАҚАН ЗАКРЕПИТ ШУДААСТ) -->
+    <!-- Шапкаи болоӣ -->
     <div class="chat-header">
         <div class="chat-header-left">
-            <a href="https://kholidtj1995.github.io/live-chat/" class="back-btn">← Бозгашт</a>
-            <div class="header-title-container">
-                <div class="header-title" id="headerTitle">Воридшавӣ</div>
-                <div class="admin-subtitle" id="adminSubtitle" style="display: none;">Админ ҳоло пайваст нест</div>
-            </div>
+            <a href="https://kholidtj1995.github.io/live-chat/" class="back-btn">←</a>
+            <div class="header-title" id="headerTitle">Воридшавӣ</div>
         </div>
-        <div id="adminStatusDot" class="admin-status-dot" style="display: none;"></div>
+        <!-- СТАТУСИ АДМИН БА ТАРАФИ РОСТ ГУЗАШТ -->
+        <div class="chat-header-right">
+            <div class="admin-subtitle" id="adminSubtitle" style="display: none;">Админ офлайн</div>
+            <div id="adminStatusDot" class="admin-status-dot" style="display: none;"></div>
+        </div>
     </div>
     
-    <!-- Равзанаи Воридшавии Зебо -->
+    <!-- Равзанаи Воридшавӣ -->
     <div id="authBox" class="auth-zone">
         <div class="auth-card">
             <h2>Хуш омадед!</h2>
@@ -400,7 +443,13 @@
         const user = document.getElementById('username').value;
         const text = document.getElementById('message').value;
         if(text.trim() === "") return; 
-        push(ref(db, 'chats/'), { user, text });
+        
+        // ИЛОВАИ ВАҚТИ СЕРВЕР (timestamp)
+        push(ref(db, 'chats/'), { 
+            user: user, 
+            text: text, 
+            timestamp: Date.now() 
+        });
         document.getElementById('message').value = '';
     };
 
@@ -426,24 +475,66 @@
 
             if (status === "online") {
                 subtitle.innerText = "Админ дар чат пайваст шуд";
-                subtitle.style.color = "#10b981";
-                dot.classList.add('online');
+                dot.className = "admin-status-dot online";
             } else {
                 subtitle.innerText = "Админ ҳоло пайваст нест";
-                subtitle.style.color = "rgba(255, 255, 255, 0.9)";
-                dot.classList.remove('online');
+                dot.className = "admin-status-dot";
             }
         });
+    }
+
+    // ФУНКСИЯҲОИ КӮМАКИ БАРОИ ВАҚТ ВА САНА
+    function formatTime(timestamp) {
+        if (!timestamp) return "";
+        const date = new Date(timestamp);
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+        hours = hours < 10 ? '0' + hours : hours;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        return hours + ':' + minutes;
+    }
+
+    function formatDate(timestamp) {
+        if (!timestamp) return "";
+        const date = new Date(timestamp);
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        return date.toLocaleDateString('tg-TJ', options);
     }
 
     onValue(ref(db, 'chats/'), (snapshot) => {
         const data = snapshot.val();
         const display = document.getElementById('chatDisplay');
         display.innerHTML = '';
+        
+        let lastDateStr = "";
+
         for (let key in data) {
             const chat = data[key];
             const isUser = chat.user !== "Админ";
-            display.innerHTML += `<div class="msg ${isUser ? 'msg-user' : 'msg-admin'}"><strong>${chat.user}</strong>${chat.text}</div>`;
+            
+            // Намоиши Санаи Рӯз (агар рӯзи нав бошад, сарлавҳаи сана мебарояд)
+            if (chat.timestamp) {
+                const currentDateStr = new Date(chat.timestamp).toDateString();
+                if (currentDateStr !== lastDateStr) {
+                    display.innerHTML += `<div class="date-separator">${formatDate(chat.timestamp)}</div>`;
+                    lastDateStr = currentDateStr;
+                }
+            }
+
+            const timeStr = formatTime(chat.timestamp || Date.now());
+            // Ишораи галочка: агар паёми корбар бошад, ду галочка нишон медиҳад
+            const ticksHtml = isUser ? `<span class="msg-ticks">✓✓</span>` : ``;
+
+            display.innerHTML += `
+                <div class="msg ${isUser ? 'msg-user' : 'msg-admin'}">
+                    <strong>${chat.user}</strong>
+                    <span>${chat.text}</span>
+                    <div class="msg-meta">
+                        <span>${timeStr}</span>
+                        ${ticksHtml}
+                    </div>
+                </div>
+            `;
         }
         display.scrollTop = display.scrollHeight; 
     });
