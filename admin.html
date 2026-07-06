@@ -1,29 +1,166 @@
 <!DOCTYPE html>
-<html lang="tg">
+<html lang="tg" translate="no">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <!-- Мета-тегҳо барои намоиши комил дар экранҳои телефон -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Админ Панел</title>
     <style>
-        body { font-family: sans-serif; background: #f9f9f9; padding: 10px; margin: 0; }
-        .admin-container { max-width: 500px; margin: auto; padding-top: 20px; }
-        #chatDisplay { display: flex; flex-direction: column; margin-bottom: 20px; border: 1px solid #ddd; height: 60vh; overflow-y: auto; background: white; padding: 10px; border-radius: 8px; }
-        .msg { padding: 10px; margin: 5px; border-radius: 10px; max-width: 75%; font-size: 15px; line-height: 20px; word-break: break-word; }
-        .msg-user { align-self: flex-start; background-color: #fff; border: 1px solid #ddd; }
-        .msg-admin { align-self: flex-end; background-color: #dcf8c6; }
-        .input-zone { display: flex; gap: 8px; }
-        input { padding: 12px; flex: 1; border: 1px solid #ddd; border-radius: 8px; outline: none; }
-        button { padding: 12px 20px; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-        button:active { background: #0056b3; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent; 
+        }
+        
+        body { 
+            background-color: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            height: 100dvh; 
+            overflow: hidden; 
+        }
+
+        /* Контейнер барои телефонҳо 100% ва компютер маҳдуд */
+        .phone-container { 
+            width: 100%; 
+            max-width: 480px; 
+            height: 100vh; 
+            height: 100dvh; 
+            background: #ffffff; 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08); 
+            overflow: hidden;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        /* Қисми болоии панел */
+        .admin-header {
+            background: #212529;
+            color: white;
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: 700;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Нуқтаи нишондиҳандаи он ки худи админ онлайн аст */
+        .online-badge {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Маҳалли паёмҳо */
+        #chatDisplay { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+            background-color: #f4f6f9;
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        #chatDisplay::-webkit-scrollbar { display: none; }
+
+        /* Паёмакҳо */
+        .msg { 
+            padding: 10px 14px; 
+            border-radius: 16px; 
+            max-width: 75%; 
+            font-size: 15px;
+            line-height: 20px;
+            word-break: break-word;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .msg-user { 
+            align-self: flex-start; 
+            background-color: white; 
+            color: #333;
+            border-bottom-left-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+        .msg-admin { 
+            align-self: flex-end; 
+            background-color: #10b981; 
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .msg strong {
+            font-size: 12px;
+            display: block;
+            margin-bottom: 2px;
+            opacity: 0.8;
+        }
+
+        /* Панели навиштани ҷавоб */
+        .input-zone { 
+            padding: 12px;
+            background: white;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid #edf2f7;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        input { 
+            flex: 1;
+            padding: 12px 16px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 20px; 
+            font-size: 15px; 
+            background: #f8fafc;
+            outline: none;
+            transition: all 0.2s;
+        }
+        input:focus { border-color: #10b981; background: #fff; }
+
+        button { 
+            padding: 12px 20px; 
+            background: #10b981; 
+            color: white; 
+            border: none; 
+            border-radius: 20px; 
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer; 
+            transition: background 0.2s;
+        }
+        button:active { background: #059669; }
     </style>
 </head>
 <body>
-<div class="admin-container">
-    <h3>Админ Панел</h3>
+
+<div class="phone-container">
+    <!-- Шапка -->
+    <div class="admin-header">
+        <span class="online-badge"></span>
+        Админ Панел
+    </div>
+
+    <!-- Чат -->
     <div id="chatDisplay"></div>
+
+    <!-- Зонаи инпут -->
     <div class="input-zone">
         <input type="text" id="adminMsg" placeholder="Ҷавоб ба корбар...">
-        <button id="sendBtn">Ҷавоб додан</button>
+        <button id="sendBtn">Ирсол</button>
     </div>
 </div>
 
@@ -57,10 +194,10 @@
         inputEl.value = '';
     };
 
-    // Пайваст кардани тугмаи клик ба таври бехатар
+    // Пайваст кардани клик
     document.getElementById('sendBtn').addEventListener('click', sendAdmin);
 
-    // Пайваст кардани тугмаи Enter барои ирсоли ҷавоб
+    // Пайваст кардани Enter
     document.getElementById('adminMsg').addEventListener('keydown', function(e) {
         if (e.key === 'Enter') {
             sendAdmin();
@@ -74,7 +211,7 @@
         for (let key in data) {
             const chat = data[key];
             const isAdmin = chat.user === "Админ";
-            display.innerHTML += `<div class="msg ${isAdmin ? 'msg-admin' : 'msg-user'}"><strong>${chat.user}</strong><br>${chat.text}</div>`;
+            display.innerHTML += `<div class="msg ${isAdmin ? 'msg-admin' : 'msg-user'}"><strong>${chat.user}</strong>${chat.text}</div>`;
         }
         display.scrollTop = display.scrollHeight;
     });
