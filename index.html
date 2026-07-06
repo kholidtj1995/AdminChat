@@ -22,6 +22,8 @@
             height: 100vh; 
             height: 100dvh; 
             overflow: hidden; 
+            position: fixed; /* Барои он ки худи экран дар телефон листат нашавад */
+            width: 100%;
         }
 
         .phone-container { 
@@ -39,15 +41,19 @@
             padding-bottom: env(safe-area-inset-bottom);
         }
 
+        /* 👑 ИСЛОҲШУДА: ШАПКА ХОЛО ДОИМ ДАР БОЛО ЗАКРЕПИТ АСТ ВА ҲЕҶ ГОҲ НЕСТ НАМЕШАВАД */
         .chat-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
             background: #007bff;
             color: white;
             padding: 14px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex-shrink: 0; /* Намегузорад, ки шапка хурд ё фишурда шавад */
         }
 
         .chat-header-left {
@@ -108,6 +114,7 @@
             100% { transform: scale(0.95); opacity: 0.7; }
         }
 
+        /* МИНТАҚАИ ПАЁМҲО: ТАНҲО ИН ҶО ЛИСТАТ МЕШАВАД */
         #chatDisplay { 
             flex: 1; 
             overflow-y: auto; 
@@ -118,6 +125,7 @@
             background-color: #f4f6f9;
             scrollbar-width: none; 
             -ms-overflow-style: none;
+            -webkit-overflow-scrolling: touch; /* Барои скролли мулоим дар iPhone */
         }
         #chatDisplay::-webkit-scrollbar { display: none; }
 
@@ -184,7 +192,6 @@
             font-weight: 500;
         }
 
-        /* 👑 ИСЛОҲШУДА: ФОНИ САФЕД КОМИЛАН НЕСТ КАРДА ШУД ВА БО ЗЕРИ ЧАТ ЯКХЕЛА ГАРДИД */
         .input-area {
             padding: 12px 16px 16px 16px;
             background: #f4f6f9;
@@ -306,7 +313,7 @@
 <body>
 
 <div class="phone-container">
-    <!-- Шапкаи болоӣ -->
+    <!-- Шапкаи болоӣ (АКНУН МУТЛАҚАН ЗАКРЕПИТ ШУДААСТ) -->
     <div class="chat-header">
         <div class="chat-header-left">
             <a href="https://kholidtj1995.github.io/live-chat/" class="back-btn">← Бозгашт</a>
